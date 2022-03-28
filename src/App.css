@@ -1,38 +1,28 @@
-.App {
+.AppFont{
+  font-family: 'Prompt', sans-serif;
+  /* font-family: 'Prompt', sans-serif; */
+}
+tr td{
+  text-align: center;
+}
+tr th{
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.header {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  font-weight: 600;
+  height: 60px;
+  line-height: 20px;
+  background-color: #20716a;
+  font-size: 40px;
+  color: #ffd36b;
+  font-family: "Patrick Hand", cursive;
 }
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.sticky {
+  position: fixed;
+  top: 0;
+  width: 100%;
 }
