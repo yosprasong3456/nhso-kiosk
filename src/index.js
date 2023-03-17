@@ -5,6 +5,8 @@ import App from './App';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AppRouter from './AppRouter';
 if (process.env.NODE_ENV === 'production') {
   console.log = () => {}
   console.error = () => {}
@@ -12,7 +14,9 @@ if (process.env.NODE_ENV === 'production') {
 }
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <AppRouter />
+    </BrowserRouter>
   </React.StrictMode>,
   document.getElementById('root')
 );

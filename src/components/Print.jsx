@@ -35,7 +35,7 @@ function Print(props) {
 
   return (
     <div>
-      <ComponentToPrint ref={componentRef} pData={props.pData} hn={props.hn} />
+      <ComponentToPrint ref={componentRef} pData={props.pData} hn={props.hn} hisName={props.hisName} />
       <ReactToPrint
         content={reactToPrintContent}
         trigger={reactToPrintTrigger}

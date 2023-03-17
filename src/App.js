@@ -23,9 +23,11 @@ import "./App.css";
 // import { ComponentToPrint } from "./components/ComponentToPrint";
 import Floatinput from "./components/Floatinput";
 import TableCC from "./components/TableCC";
-// import Header from "./header";
+import Header from "./header";
 import Footer from "./footer";
 import  Print  from "./components/Print";
+
+//"homepage": "https://nhso-auth.udch.work/",
 
 function dateNow(){
   let d = new Date();
@@ -38,7 +40,19 @@ function dateNow(){
   return `${year}-${month}-${day}`
 }
 
-function postToHIS(params, code, hn = ''){
+function textSplit(params, code = 0){
+  const a = params.split("(")
+  const b = a[1].split(")")
+  if(code){
+    return b[0]
+  }else{
+    let c = params.split(" ")
+    c.shift()
+    return c.join(' ')
+  }
+}
+
+function postToHIS(params, code, hn = '' , mainInscl, subInscl, mainInsclName, subInsclName){
   
   const data = {
     "ac_id": "",
@@ -46,7 +60,11 @@ function postToHIS(params, code, hn = ''){
     "ac_code": code,
     "ac_type": params.claimType,
     "ac_date": dateNow(),
-    "ac_hn": hn
+    "ac_hn": hn,
+    "ac_main_insr": mainInscl,
+    "ac_sub_insr": subInscl,
+    "ac_main_name": mainInsclName,
+    "ac_sub_name": subInsclName
   }
 
   console.log(data)
@@ -84,6 +102,8 @@ function App() {
   const [loadAC, setLoadAC] = useState(false);
   const [hn, setHn] = useState("");
   const [codeStatus, setCodeStatus] = useState("")
+  const [hisName, setHisName] = useState('')
+  const [cardOnly, setCardOnly] = useState(null)
   const printtRef = React.useRef(null);
 
   useEffect(() => {
@@ -103,13 +123,19 @@ function App() {
             `${process.env.REACT_APP_API_URL}api/smartcard/read?readImageFlag=true`
           );
           if (data !== null) {
+            const cardRead = await axios.get(
+              `${process.env.REACT_APP_API_URL}api/smartcard/read-card-only?readImageFlag=false`
+            );
+            console.log('card', cardRead.data)
             setPersonData(data);
+            setCardOnly(cardRead.data)
             getLastAC(data.pid);
             getHn(data.pid);
             setLoading(false);
           }
           setLoading(false);
-          console.log(data);
+          // const {mainInscl, subInscl} = data
+          // console.log(textSplit(subInscl))
           return data;
         } catch (error) {
           console.log(error.response)
@@ -143,7 +169,12 @@ function App() {
       setPersonData(null);
       setLastAC(null);
       setLoading(false);
-      setHn("")
+      setHn("");
+      setHisName("")
+      setCardOnly(null)
+      setModalPrint(false)
+      setShow(false)
+      setCellPhone("")
     }
   }, [cardStatus, personData]);
 
@@ -157,36 +188,71 @@ function App() {
     }
   };
 
-  const getHn = async (params) => {
+  const getHN1 = async (params) =>{
     const { data } = await axios.get(
-      `https://udch-app.4all.in.th:9001/patient?identifier=https://www.thaihis.org/terminology/identifier/cid|${params}&_count=1`,
+      `https://nhso-auth.udch.work/api/getPerson.php?cid=${params}`,
       {
         headers: {
-          Authorization: `Bearer UnlXV6spdrqsM8wUT3su9SR2UNH7TFrZ`,
+          Authorization: `Bearer 09gW5p3AAqfpypa1c1zqCsxtafcs0LtU`,
         },
       }
-    );
-    if (data.length > 0) {
-      const { identifier } = data[0];
-      identifier.map((data1) => {
-        if (
-          data1.system === "https://www.thaihis.org/terminology/identifier/hn"
-        ) {
-          setHn(data1.value);
-          return data1.value;
-        }
-        return 0;
-      });
-      const { telecom } = data[0];
-      telecom.map((tele) => {
-        if (tele.system === "phone") {
-          let phoneNum = tele.value.split("-");
-          setCellPhone(`${phoneNum[0]}${phoneNum[1]}${phoneNum[2]}`);
-          return `${phoneNum[0]}${phoneNum[1]}${phoneNum[2]}`;
-        }
-        return 0;
-      });
+    ); 
+    if(data.message === 'success'){
+      console.log('getHN1',data.data)
+      const { hn, phone, fullname } = data.data
+      setHn(hn)
+      setCellPhone(phone)
+      setHisName(fullname)
     }
+  }
+
+  const getHn = async (params) => {
+   
+    try {
+      const { data } = await axios.get(
+        `https://udch-app.4all.in.th:9001/patient?identifier=https://www.thaihis.org/terminology/identifier/cid|${params}&_count=1`,
+        {
+          headers: {
+            Authorization: `Bearer UnlXV6spdrqsM8wUT3su9SR2UNH7TFrZ`,
+          },
+        }
+      );
+
+      if (data.length > 0) {
+        const { name } = data[0];
+        setHisName(`${name[0].given[0]} ${name[0].family}`)
+        const { identifier } = data[0];
+        identifier.map((data1) => {
+          if (
+            data1.system === "https://www.thaihis.org/terminology/identifier/hn"
+          ) {
+            setHn(data1.value);
+            return data1.value;
+          }
+          return 0;
+        });
+        const { telecom } = data[0];
+        telecom.map((tele) => {
+          if (tele.system === "phone") {
+            let phoneNum = tele.value.split("-");
+            setCellPhone(`${phoneNum[0]}${phoneNum[1]}${phoneNum[2]}`);
+            let phoneResult = ''
+            for(let i = 0; i< phoneNum.length; i++){
+              phoneResult += phoneNum[i]
+            }
+            console.log('phone = ', phoneResult)
+            return phoneResult;
+          }
+          return 0;
+        });
+      }else{
+        getHN1(params);
+      }
+    } catch (error) {
+      console.log(error)
+      getHN1(params);
+    }
+    
   };
 
   const sentData = () => {
@@ -213,7 +279,9 @@ function App() {
             console.log("res", res);
             setModalText("คุณขอ AuthenCode สำเร็จ " + res.data.claimCode);
             getLastAC(data.pid);
-            postToHIS(data, res.data.claimCode, hn)
+            postToHIS(data, res.data.claimCode, hn, textSplit(personData.mainInscl, 1), 
+                      textSplit(personData.subInscl, 1), textSplit(personData.mainInscl), 
+                      textSplit(personData.subInscl))
           }).catch((error) => {
             console.log(error.response);
             setModalText("วันนี้คุณขอ AuthenCode แล้ว");
@@ -261,8 +329,8 @@ function App() {
   };
   return (
     <div className="AppFont">
-      {/* <Header /> */}
-      <Navbar
+      <Header />
+      {/* <Navbar
         expand="lg"
         variant="light"
         style={{ backgroundColor: "#0d6efd" }}
@@ -272,6 +340,7 @@ function App() {
             <img alt="" src="udch.png" width="60" height="60" />{" "}
               โรงพยาบาลมะเร็งอุดรธานี
           </Navbar.Brand>
+          <>
           <Button
             variant="warning"
             style={{ marginTop: 0 }}
@@ -279,8 +348,10 @@ function App() {
           >
             Reload <FaRedo />
           </Button>
+          </>
+          
         </Container>
-      </Navbar>
+      </Navbar> */}
       <Container fluid="lg">
         <Card style={{ margin: 20 }}>
           <Card.Header as="h5">
@@ -352,7 +423,7 @@ function App() {
                     <>
                       <Col xs={12} md={4}>
                         <Floatinput label="เลขบัตรประชาชน" value={personData.pid}/>
-                        <Floatinput label="ชื่อ - นามสกุล" value={`${personData.fname} ${personData.lname}`}/>
+                        <Floatinput label="ชื่อ - นามสกุล" value={cardOnly ? `${cardOnly.fname} ${cardOnly.lname}` : `${personData.fname} ${personData.lname}`}/>
                         <Floatinput label="เพศ" value={personData.sex}/>
                       </Col>
                       <Col xs={12} md={5}>
@@ -506,7 +577,7 @@ function App() {
           keyboard={false}
         >
           <Modal.Body style={{ textAlign: "center" }}>
-            {lastAC && <Print ref={printtRef} pData={personData} hn={hn} />}
+            {lastAC && <Print ref={printtRef} pData={personData} hn={hn} hisName={hisName} />}
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={() => setModalPrint(false)}>
@@ -527,7 +598,7 @@ function App() {
               <>
                 {modalText}
                 {modalText !== "ตรวจสอบเบอร์โทรศัพท์"
-                  ? lastAC && <Print pData={personData} hn={hn} />
+                  ? lastAC && <Print pData={personData} hn={hn} hisName={hisName}/>
                   : null}
               </>
             ) : (

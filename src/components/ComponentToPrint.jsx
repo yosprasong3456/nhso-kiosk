@@ -69,7 +69,7 @@ export class ComponentToPrint extends React.PureComponent {
     return `${date1[2]}/${date1[1]}/${date1[0]}`;
   }
   render() {
-    const { pData, hn } = this.props;
+    const { pData, hn, hisName } = this.props;
     const { cData, loading, date } = this.state;
     // const data1 = this.getLastAC('1479900266077')
     return (
@@ -94,7 +94,7 @@ export class ComponentToPrint extends React.PureComponent {
                     textOverflow: "ellipsis",
                   }}
                 >
-                  {`ชื่อ : ${pData.fname} ${pData.lname}`}
+                  {`ชื่อ : ${hisName}`}
                 </Col>
                 <Col
                   style={{
@@ -139,7 +139,7 @@ export class ComponentToPrint extends React.PureComponent {
           <div style={{ width: 100, padding: 0 }}>
             {cData ? (
               <Col>
-                <QRCode value={cData} size={60} />
+                <QRCode value={hn} size={60} />
                 <label style={{ fontSize: 12 }}>{cData}</label>
               </Col>
             ) : (

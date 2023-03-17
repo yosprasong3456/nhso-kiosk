@@ -1,39 +1,70 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import "./App.css";
+import "./index.css";
+import { Button, Navbar, Container, Row } from "react-bootstrap";
+import { useLocation, Link } from 'react-router-dom'
+import { FcSearch, FcSurvey, FcRefresh } from "react-icons/fc";
 
-function Header() {
-  const fixedText = "I am fixed :)";
-  const whenNotFixed = "I am not a fixed header :(";
-  const [headerText, setHeaderText] = useState(whenNotFixed);
+function Header(props) {
+  const [serene, setSerene] = useState(true)
+  // const [kiosk, setKiosk] = useState(false)
+  const location = useLocation();
   useEffect(() => {
-    const header = document.getElementById("myHeader");
-    const sticky = header.offsetTop;
-    const scrollCallBack = window.addEventListener("scroll", () => {
-      if (window.pageYOffset > sticky) {
-        header.classList.add("sticky");
-        if (headerText !== fixedText) {
-          setHeaderText(fixedText);
-        }
-      } else {
-        header.classList.remove("sticky");
-        if (headerText !== whenNotFixed) {
-          setHeaderText(whenNotFixed);
-        }
-      }
-    });
-    return () => {
-      window.removeEventListener("scroll", scrollCallBack);
-    };
-  }, []);
-
+    if(location.pathname === '/serene'){
+      setSerene(false)
+      console.log('GGW')
+    }
+    console.log(location.pathname);
+  }, [])
+  
   return (
-    <div>
+    <Navbar
+      className="AppFont"
+      expand="lg"
+      variant="light"
+      style={{ backgroundColor: "#0d6efd" }}
+    >
+      <Container>
+      
+        <Navbar.Brand href="#" style={{ color: "white" }}>
+          <Link to="/" style={{color:'#fff'}}>
+          <img alt="" src="udch.png" width="60" height="60" />{" "}
+            โรงพยาบาลมะเร็งอุดรธานี
+          </Link>
+        </Navbar.Brand>
         
-      <header id="myHeader" className="header">
-        {headerText}
-      </header>
-    </div>
+        <div>
+          <Button
+            variant="warning"
+            style={{ marginTop: 0 }}
+            onClick={() => window.location.reload(false)}
+          >
+            <FcRefresh />
+            Reload 
+          </Button>
+          { serene ? 
+          <Link to="/serene">
+            <Button
+              variant="danger"
+              style={{ marginTop: 0, marginLeft:10 }}
+            >
+              <FcSearch/>
+              Serene HN
+            </Button>
+          </Link> : 
+          <Link to="/kiosk">
+          <Button
+            variant="success"
+            style={{ marginTop: 0, marginLeft:10 }}
+          >
+            <FcSurvey/>
+            Kiosk
+          </Button>
+        </Link>}
+          
+        </div>
+      </Container>
+    </Navbar>
   );
 }
 
