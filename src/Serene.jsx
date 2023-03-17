@@ -55,7 +55,7 @@ function Serene() {
       "lname": person.lname
     }
     const result = await axios.post(
-      `https://iot.udch.work:8888/serene_test.php`, dataSent
+      process.env.REACT_APP_API_SERENE, dataSent
     );
     if(result.data.message === 'success'){
       if(result.data.data.length > 0){

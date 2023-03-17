@@ -74,7 +74,7 @@ function postToHIS(params, code, hn = '' , mainInscl, subInscl, mainInsclName, s
       data,
       {
         headers: {
-          Authorization: `Bearer UnlXV6spdrqsM8wUT3su9SR2UNH7TFrZ`,
+          Authorization: `Bearer ${process.env.REACT_APP_API_HIS_KEY}`,
         },
       }
     )
@@ -190,10 +190,10 @@ function App() {
 
   const getHN1 = async (params) =>{
     const { data } = await axios.get(
-      `https://nhso-auth.udch.work/api/getPerson.php?cid=${params}`,
+      `${process.env.REACT_APP_API_LOCAL}/getPerson.php?cid=${params}`,
       {
         headers: {
-          Authorization: `Bearer 09gW5p3AAqfpypa1c1zqCsxtafcs0LtU`,
+          Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
         },
       }
     ); 
@@ -210,10 +210,10 @@ function App() {
    
     try {
       const { data } = await axios.get(
-        `https://udch-app.4all.in.th:9001/patient?identifier=https://www.thaihis.org/terminology/identifier/cid|${params}&_count=1`,
+        `${process.env.REACT_APP_API_HIS_PERSON}${params}&_count=1`,
         {
           headers: {
-            Authorization: `Bearer UnlXV6spdrqsM8wUT3su9SR2UNH7TFrZ`,
+            Authorization: `Bearer ${process.env.REACT_APP_API_HIS_KEY}`,
           },
         }
       );
