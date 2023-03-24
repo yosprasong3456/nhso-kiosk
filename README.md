@@ -1,2 +1,2 @@
-# nhso-kiosk connect his
-smart card create authen code
+# nhso-kiosk
+smart card create authen code (connect his)
