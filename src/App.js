@@ -26,6 +26,7 @@ import TableCC from "./components/TableCC";
 import Header from "./header";
 import Footer from "./footer";
 import  Print  from "./components/Print";
+import QRModal from './components/QRModal'
 
 //"homepage": "https://nhso-auth.udch.work/",
 
@@ -105,10 +106,11 @@ function App() {
   const [hisName, setHisName] = useState('')
   const [cardOnly, setCardOnly] = useState(null)
   const printtRef = React.useRef(null);
+  const [qrShow, setQrShow] = useState(false)
 
   useEffect(() => {
     const interval = setInterval(async () => {
-      cardStat(); //
+      cardStat(); 
     }, 2000);
     return () => clearInterval(interval);
   }, [cardStatus]);
@@ -397,7 +399,9 @@ function App() {
                       {codeStatus}
                       
                     </label>}</Col>
+                    <Col style={{padding: 15}}><Button onClick={()=>setQrShow(true)}>📱 QR-code</Button></Col>
             </Row>
+            
           </Card.Body>
         </Card>
         {personData ? (
@@ -631,6 +635,8 @@ function App() {
             </Button>
           </Modal.Footer>
         </Modal>
+        <QRModal show={qrShow}
+        onHide={() => setQrShow(false)}/>
       </Container>
       <Footer />
     </div>
